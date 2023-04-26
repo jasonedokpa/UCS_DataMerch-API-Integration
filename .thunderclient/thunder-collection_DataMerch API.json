@@ -1,0 +1,55 @@
+{
+    "client": "Thunder Client",
+    "collectionName": "DataMerch API",
+    "dateExported": "2023-04-26T21:59:48.450Z",
+    "version": "1.1",
+    "folders": [],
+    "requests": [
+        {
+            "_id": "1407d88a-c1fb-41a7-8e31-2dbe46ad6685",
+            "colId": "e9d0af94-62da-4f35-81e2-b51f9cc0409b",
+            "containerId": "",
+            "name": "Authenticate with DataMerch",
+            "url": "https://api.datamerch.com/api/v2/get_token",
+            "method": "POST",
+            "sortNum": 10000,
+            "created": "2023-04-26T19:59:22.857Z",
+            "modified": "2023-04-26T20:28:46.086Z",
+            "headers": [
+                {
+                    "name": "Content-Type",
+                    "value": "application/json"
+                }
+            ],
+            "params": [],
+            "body": {
+                "type": "json",
+                "raw": "{\n  \"auth\":\n  {\n    \"authentication_token\":\"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\",\n    \"authentication_key\":\"xxxxxxxxxxxxxxxxxxxx\"\n  }\n}",
+                "form": []
+            },
+            "tests": []
+        },
+        {
+            "_id": "cd18932e-e89c-423f-bcb2-b6da642164e7",
+            "colId": "e9d0af94-62da-4f35-81e2-b51f9cc0409b",
+            "containerId": "",
+            "name": "Search for a merchant",
+            "url": "https://api.datamerch.com/api/v2/merchants/123456789",
+            "method": "GET",
+            "sortNum": 20000,
+            "created": "2023-04-26T21:32:25.893Z",
+            "modified": "2023-04-26T21:58:23.735Z",
+            "headers": [
+                {
+                    "name": "Authorization",
+                    "value": "xxxxxxxxxxxxxxxxxxxx.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+                }
+            ],
+            "params": [],
+            "tests": []
+        }
+    ],
+    "settings": {
+        "docs": "Used for the purpose of generating a new Authentication Key and retrieving a list of cases from a Federal Tax ID#"
+    }
+}
