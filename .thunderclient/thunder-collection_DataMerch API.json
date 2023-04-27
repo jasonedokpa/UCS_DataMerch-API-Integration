@@ -42,7 +42,7 @@
             "headers": [
                 {
                     "name": "Authorization",
-                    "value": "eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjozMzQ2LCJleHAiOjE2ODI2MzIxMDN9.UVnRSRFJzvgH3XYEVU6eB2Clilifg2FLmSUw2pUAtS0"
+                    "value": "[TOKEN]"
                 }
             ],
             "params": [],
