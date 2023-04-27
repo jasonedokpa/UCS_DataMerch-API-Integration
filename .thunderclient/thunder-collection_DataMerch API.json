@@ -42,7 +42,7 @@
             "headers": [
                 {
                     "name": "Authorization",
-                    "value": "xxxxxxxxxxxxxxxxxxxx.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+                    "value": "[TOKEN]"
                 }
             ],
             "params": [],
