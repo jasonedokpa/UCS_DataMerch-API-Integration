@@ -1,6 +1,30 @@
 <apex:page standardController="Lead" extensions="DataMergeExtension">
-<!-- Begin Default Content REMOVE THIS -->
-<h1>Congratulations</h1>
-This is your new Page
-<!-- End Default Content REMOVE THIS -->
+	<apex:outputPanel rendered="{!emptyResponseReturned == false}">
+		<apex:pageBlock >
+			<apex:pageBlockTable value="{!newNotes}" var="note" columnsWidth="20%,25%,20%,15%,20%">
+				<apex:column value="{!note.Category__c}"/>
+				<apex:column value="{!note.Note__c}"/>
+				<apex:column value="{!note.Created_At__c}"/>
+				<apex:column value="{!note.Added_By__c}"/>
+				<apex:column value="{!note.Related_Account__c}"/>
+			</apex:pageBlockTable>
+		</apex:pageBlock>
+		<br></br>
+		<apex:outputPanel id='thePanel' rendered="{!showButton}">
+			<h5 style="display:flex; justify-content:center;">Press the button below to save these DataMerch Note records.</h5>
+			<br></br>
+			<apex:form style="display:flex; justify-content:center;">
+				<apex:commandButton id="theButton" action="{!insertRecords}" value="Save"/>
+			</apex:form>
+		</apex:outputPanel>
+		<apex:outputPanel rendered="{!showButton == false}" style="display:flex; justify-content:center;">
+			Records saved!
+		</apex:outputPanel>
+	</apex:outputPanel>
+	<apex:outputPanel rendered="{!emptyResponseReturned == true}" style="display:flex; align-items:center; justify-content:center;">
+		<br></br>
+		<h5>
+			No notes exist for this Lead. Make sure that you have entered a proper value for "Federal Tax ID#".
+		</h5>
+	</apex:outputPanel>
 </apex:page>

@@ -9,11 +9,17 @@ public with sharing class DataMergeExtension
 {
 	private static SObject record;
 	private static String sObjectType;
+	public Boolean isLoading { get; set; }
+	public Boolean showButton { get; set; }
+	public Boolean emptyResponseReturned { get; set; }
+	public List<DataMerch_Note__c> oldNotes { get; set; }
+	public List<DataMerch_Note__c> newNotes { get; set; }
 
 	public DataMergeExtension(ApexPages.StandardController controller)
 	{
 		Id recordId = controller.getId();
-		
+		this.showButton = true;
+
 		//determine whether it is an Account or a Lead
 		if (recordId != null)
 		{
@@ -22,20 +28,20 @@ public with sharing class DataMergeExtension
 				when 'Account'
 					{
 						record = [SELECT FIELDS(STANDARD), McaApp__Federal_Tax_ID_No__c FROM Account WHERE Id = :recordId LIMIT 1];
-						sObjectType = 'Account';
+						DataMergeExtension.sObjectType = 'Account';
 					}
 				when 'Lead'
 					{
 						record = [SELECT FIELDS(STANDARD), McaApp__Federal_Tax_ID_No__c, McaApp__ISO__c FROM Lead WHERE Id = :recordId LIMIT 1];
-						sObjectType = 'Lead';
+						DataMergeExtension.sObjectType = 'Lead';
 					}
 			}
 		}
 
 		System.debug(record);
 		String authKey = this.AuthenticateWithDataMerch();
-		List<DataMerch_Note__c> DataMerchNotes = this.getCases(authKey);
-		insert DataMerchNotes;
+		this.oldNotes = [SELECT Id FROM DataMerch_Note__c WHERE Related_Account__c = :this.getAccountId()];
+		this.newNotes = this.getCases(authKey);
 	}
 
 	public String AuthenticateWithDataMerch()
@@ -68,38 +74,55 @@ public with sharing class DataMergeExtension
 		HTTPResponse res = http.send(req);
 		System.debug(res.getBody());
 
-		// Parse the JSON string into an Apex Map
-		Object responseMap = ((List<Object>) JSON.deserializeUntyped(res.getBody())).get(0);
-
-		// Get the "notes" field as a list of objects
-		List<Object> notesList = (List<Object>) ((Map<String,Object>) ((Map<String,Object>) responseMap).get('merchant')).get('notes');
-		
-		//Create a list of DataMerch Note records to insert
-		List<DataMerch_Note__c> listOfDataMerchNotesInsert = new List<DataMerch_Note__c>();
-		for (Object note : notesList)
+		if (((List<Object>) JSON.deserializeUntyped(res.getBody())).size() == 0)
 		{
-			Map<String, Object> noteMap = (Map<String, Object>) ((Map<String, Object>) note).get('note');
-			DataMerch_Note__c newDataMerchNote = new DataMerch_Note__c();
-			newDataMerchNote.Category__c = (String) noteMap.get('category');
-			newDataMerchNote.Note__c = (String) noteMap.get('note');
-			newDataMerchNote.Created_At__c = (String) noteMap.get('created_at');
-			newDataMerchNote.Added_By__c = (String) noteMap.get('added_by');
-			newDataMerchNote.Related_Account__c = this.getAccountId();
-			listOfDataMerchNotesInsert.add(newDataMerchNote);
+			this.emptyResponseReturned = true;
+			System.debug('Emtpy response returned.');
+			return new List<DataMerch_Note__c>();
 		}
+		else	
+		{	
+			this.emptyResponseReturned = false;
+			// Parse the JSON string into an Apex Map
+			Object responseMap = ((List<Object>) JSON.deserializeUntyped(res.getBody())).get(0);
 
-		System.debug(listOfDataMerchNotesInsert);
-		return listOfDataMerchNotesInsert;
+			// Get the "notes" field as a list of objects
+			List<Object> notesList = (List<Object>) ((Map<String,Object>) ((Map<String,Object>) responseMap).get('merchant')).get('notes');
+			
+			//Create a list of DataMerch Note records to insert
+			List<DataMerch_Note__c> listOfDataMerchNotesInsert = new List<DataMerch_Note__c>();
+			for (Object note : notesList)
+			{
+				Map<String, Object> noteMap = (Map<String, Object>) ((Map<String, Object>) note).get('note');
+				DataMerch_Note__c newDataMerchNote = new DataMerch_Note__c();
+				newDataMerchNote.Category__c = (String) noteMap.get('category');
+				newDataMerchNote.Note__c = (String) noteMap.get('note');
+				newDataMerchNote.Created_At__c = (String) noteMap.get('created_at');
+				newDataMerchNote.Added_By__c = (String) noteMap.get('added_by');
+				newDataMerchNote.Related_Account__c = this.getAccountId();
+				listOfDataMerchNotesInsert.add(newDataMerchNote);
+			}
+
+			System.debug(listOfDataMerchNotesInsert);
+			return listOfDataMerchNotesInsert;
+		}
 	}
 
 	public Id getAccountId()
 	{
 		if (sObjectType == 'Account')
-			return record.Id;
+			return DataMergeExtension.record.Id;
 
-		if (sObjectType == 'Lead' && record.get('McaApp__ISO__c') != null)
-			return (Id) record.get('McaApp__ISO__c');
+		if (sObjectType == 'Lead' && DataMergeExtension.record.get('McaApp__ISO__c') != null)
+			return (Id) DataMergeExtension.record.get('McaApp__ISO__c');
 		
 		return null;
+	}
+
+	public void insertRecords()
+	{
+		delete this.oldNotes;
+		insert this.newNotes;
+		this.showButton = false;
 	}
 }
