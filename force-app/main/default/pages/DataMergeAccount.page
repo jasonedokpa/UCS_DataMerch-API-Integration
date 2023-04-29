@@ -1,7 +1,7 @@
 <apex:page standardController="Account" extensions="DataMergeExtension">
 	<apex:outputPanel rendered="{!emptyResponseReturned == false}">
 		<apex:pageBlock >
-			<apex:pageBlockTable value="{!newNotes}" var="note" columnsWidth="20%,25%,20%,15%,20%">
+			<apex:pageBlockTable value="{!newNotes}" var="note" columnsWidth="20%,20%,25%,15%,20%">
 				<apex:column value="{!note.Category__c}"/>
 				<apex:column value="{!note.Note__c}"/>
 				<apex:column value="{!note.Created_At__c}"/>
