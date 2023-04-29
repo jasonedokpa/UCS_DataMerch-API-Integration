@@ -12,7 +12,7 @@ public with sharing class DataMergeExtension
 	public Boolean isLoading { get; set; }
 	public Boolean showButton { get; set; }
 	public Boolean emptyResponseReturned { get; set; }
-	public List<DataMerch_Note__c> oldNotes { get; set; }
+	private List<DataMerch_Note__c> oldNotes;
 	public List<DataMerch_Note__c> newNotes { get; set; }
 
 	public DataMergeExtension(ApexPages.StandardController controller)
@@ -26,21 +26,22 @@ public with sharing class DataMergeExtension
 			switch on String.valueOf(recordId.getSObjectType())
 			{
 				when 'Account'
-					{
-						record = [SELECT FIELDS(STANDARD), McaApp__Federal_Tax_ID_No__c FROM Account WHERE Id = :recordId LIMIT 1];
-						DataMergeExtension.sObjectType = 'Account';
-					}
+				{
+					record = [SELECT FIELDS(STANDARD), McaApp__Federal_Tax_ID_No__c FROM Account WHERE Id = :recordId LIMIT 1];
+					DataMergeExtension.sObjectType = 'Account';
+				}
 				when 'Lead'
-					{
-						record = [SELECT FIELDS(STANDARD), McaApp__Federal_Tax_ID_No__c, McaApp__ISO__c FROM Lead WHERE Id = :recordId LIMIT 1];
-						DataMergeExtension.sObjectType = 'Lead';
-					}
+				{
+					record = [SELECT FIELDS(STANDARD), McaApp__Federal_Tax_ID_No__c, McaApp__ISO__c FROM Lead WHERE Id = :recordId LIMIT 1];
+					DataMergeExtension.sObjectType = 'Lead';
+				}
 			}
 		}
 
 		System.debug(record);
 		String authKey = this.AuthenticateWithDataMerch();
-		this.oldNotes = [SELECT Id FROM DataMerch_Note__c WHERE Related_Account__c = :this.getAccountId()];
+		String relationshipField = 'Related_' + DataMergeExtension.sObjectType + '__c';
+		this.oldNotes = Database.query('SELECT Id FROM DataMerch_Note__c WHERE ' + relationshipField + ' = :recordId');
 		this.newNotes = this.getCases(authKey);
 	}
 
@@ -57,9 +58,8 @@ public with sharing class DataMergeExtension
 		HTTPResponse res = http.send(req);
 		System.debug(res.getBody());
 		Map<String, Object> responseMap = (Map<String, Object>) JSON.deserializeUntyped(res.getBody());
-		String authenticationKey = (String) responseMap.get('token');
 
-		return authenticationKey;
+		return (String) responseMap.get('token');
 	}
 
 	public List<DataMerch_Note__c> getCases(String authenticationKey)
@@ -99,24 +99,16 @@ public with sharing class DataMergeExtension
 				newDataMerchNote.Note__c = (String) noteMap.get('note');
 				newDataMerchNote.Created_At__c = (String) noteMap.get('created_at');
 				newDataMerchNote.Added_By__c = (String) noteMap.get('added_by');
-				newDataMerchNote.Related_Account__c = this.getAccountId();
+				if (DataMergeExtension.sObjectType == 'Account')
+					newDataMerchNote.Related_Account__c = DataMergeExtension.record.Id;
+				if (DataMergeExtension.sObjectType == 'Lead')
+					newDataMerchNote.Related_Lead__c = DataMergeExtension.record.Id;
 				listOfDataMerchNotesInsert.add(newDataMerchNote);
 			}
 
 			System.debug(listOfDataMerchNotesInsert);
 			return listOfDataMerchNotesInsert;
 		}
-	}
-
-	public Id getAccountId()
-	{
-		if (sObjectType == 'Account')
-			return DataMergeExtension.record.Id;
-
-		if (sObjectType == 'Lead' && DataMergeExtension.record.get('McaApp__ISO__c') != null)
-			return (Id) DataMergeExtension.record.get('McaApp__ISO__c');
-		
-		return null;
 	}
 
 	public void insertRecords()
