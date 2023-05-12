@@ -55,8 +55,8 @@ public with sharing class DataMergeExtension
 		req.setHeader('Content-Type', 'application/json');
 
 		Http http = new Http();
-		HTTPResponse res = http.send(req);
-		System.debug(res.getBody());
+		HttpResponse res = http.send(req);
+		System.debug('Aunthentication response: ' + res.getBody());
 		Map<String, Object> responseMap = (Map<String, Object>) JSON.deserializeUntyped(res.getBody());
 
 		return (String) responseMap.get('token');
@@ -71,8 +71,8 @@ public with sharing class DataMergeExtension
 		req.setHeader('Authorization', authenticationKey);
 
 		Http http = new Http();
-		HTTPResponse res = http.send(req);
-		System.debug(res.getBody());
+		HttpResponse res = http.send(req);
+		System.debug('Merchant response: ' + res.getBody());
 
 		if (((List<Object>) JSON.deserializeUntyped(res.getBody())).size() == 0)
 		{
@@ -97,7 +97,7 @@ public with sharing class DataMergeExtension
 				DataMerch_Note__c newDataMerchNote = new DataMerch_Note__c();
 				newDataMerchNote.Category__c = (String) noteMap.get('category');
 				newDataMerchNote.Note__c = (String) noteMap.get('note');
-				newDataMerchNote.Created_At__c = (String) noteMap.get('created_at');
+				newDataMerchNote.Created_At__c = Datetime.valueOf(((String) noteMap.get('created_at')).replace('T', ' '));
 				newDataMerchNote.Added_By__c = (String) noteMap.get('added_by');
 				if (DataMergeExtension.sObjectType == 'Account')
 					newDataMerchNote.Related_Account__c = DataMergeExtension.record.Id;
@@ -106,7 +106,7 @@ public with sharing class DataMergeExtension
 				listOfDataMerchNotesInsert.add(newDataMerchNote);
 			}
 
-			System.debug(listOfDataMerchNotesInsert);
+			System.debug('DataMerch Note records: ' + listOfDataMerchNotesInsert);
 			return listOfDataMerchNotesInsert;
 		}
 	}
