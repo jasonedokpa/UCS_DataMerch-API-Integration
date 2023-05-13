@@ -9,7 +9,7 @@
       "type": "apex-replay",
       "request": "launch",
       "logFile": "${command:AskForLogFileName}",
-      "stopOnEntry": true,
+      "stopOnEntry": false,
       "trace": true
     }
   ]
