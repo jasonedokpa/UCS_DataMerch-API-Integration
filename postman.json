@@ -1,0 +1,72 @@
+{
+    "info": {
+        "_postman_id": "2e98bbe8-c6ea-49d6-8fc7-658c58877a5c",
+        "name": "DataMerch API",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+        "description": "Used for the purpose of generating a new Authentication Key and retrieving a list of cases from a Federal Tax ID#"
+    },
+    "item": [
+        {
+            "name": "Authenticate with DataMerch",
+            "request": {
+                "method": "POST",
+                "url": {
+                    "raw": "https://api.datamerch.com/api/v2/get_token",
+                    "path": [
+                        "api",
+                        "v2",
+                        "get_token"
+                    ],
+                    "protocol": "https",
+                    "host": [
+                        "api",
+                        "datamerch",
+                        "com"
+                    ]
+                },
+                "header": [
+                    {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                    }
+                ],
+                "body": {
+                    "mode": "raw",
+                    "options": {
+                        "raw": {
+                            "language": "json"
+                        }
+                    },
+                    "raw": "{\n  \"auth\":\n  {\n    \"authentication_token\":\"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\",\n    \"authentication_key\":\"xxxxxxxxxxxxxxxxxxxx\"\n  }\n}"
+                }
+            }
+        },
+        {
+            "name": "Search for a merchant",
+            "request": {
+                "method": "GET",
+                "url": {
+                    "raw": "https://api.datamerch.com/api/v2/merchants/123456789",
+                    "path": [
+                        "api",
+                        "v2",
+                        "merchants",
+                        "123456789"
+                    ],
+                    "protocol": "https",
+                    "host": [
+                        "api",
+                        "datamerch",
+                        "com"
+                    ]
+                },
+                "header": [
+                    {
+                        "key": "Authorization",
+                        "value": "[TOKEN]"
+                    }
+                ]
+            }
+        }
+    ]
+}
